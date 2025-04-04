@@ -10,3 +10,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # 3. Base class for your models
 Base = declarative_base()
+
+# Dependency to get the DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

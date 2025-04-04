@@ -1,6 +1,6 @@
-from database import Base
+from api.db.database import Base
 from sqlalchemy import Column, Integer, String, Boolean
-
+# Removed redundant import
 class User(Base):
     __tablename__ = "users"
 

@@ -1,9 +1,10 @@
+#C:\Users\beka\DeapCode\backend\api\auth\auth.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models.user import User
 from schemas.auth import SignupRequest, LoginRequest
-from utils.jwt import create_access_token
-from dependencies import get_db
+from utils.jwt import create_access_token, create_refresh_token, decode_access_token
+from api.db.dependencies import get_db
 from passlib.context import CryptContext
 router = APIRouter()
 
@@ -40,14 +41,31 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
     token = create_access_token({"sub": str(new_user.id)})
     return {"access_token": token, "token_type": "bearer"}
 
-# Login Route
+# api/routes/auth.py
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    # Find the user
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not pwd_context.verify(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    # Generate token
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    # Create Access Token and Refresh Token
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
+    
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@router.post("/refresh")
+def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
+    try:
+        # Decode and verify the refresh token
+        payload = decode_access_token(refresh_token)
+        if not payload:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+        # Create new access token using the user id (sub) from the refresh token payload
+        new_access_token = create_access_token({"sub": payload["sub"]})
+        return {"access_token": new_access_token, "token_type": "bearer"}
+    
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
