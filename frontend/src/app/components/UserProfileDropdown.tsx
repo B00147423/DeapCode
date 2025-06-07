@@ -79,7 +79,7 @@ export default function UserProfileDropdown() {
             <User className="h-5 w-5" />
           </div>
         )}
-        <span className="text-sm text-black dark:text-white font-medium max-w-[80px] truncate">{user?.name || user?.email?.split('@')[0]}</span>
+     
         <ChevronDown 
           className={cn(
             "h-4 w-4 text-black dark:text-white transition-transform duration-200 flex-shrink-0",
@@ -91,13 +91,44 @@ export default function UserProfileDropdown() {
       {/* Dropdown menu */}
       {isOpen && (
         <div className="absolute right-0 top-full mt-1 w-56 rounded-md bg-white dark:bg-gray-900 py-1 shadow-lg ring-1 ring-black ring-opacity-5 z-50 animate-in fade-in slide-in-from-top-5 duration-200">
-          <div className="border-b border-gray-100 dark:border-gray-800 px-4 py-2 mb-1">
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Signed in as</p>
-            <p className="text-sm font-medium text-black dark:text-white truncate">{user?.email}</p>
+          <div className="border-b border-gray-100 dark:border-gray-800 px-4 py-3 mb-1">
+            <div className="flex items-center gap-3 mb-2">
+              {user?.image ? (
+                <div className="relative h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                  <Image
+                    src={user.image}
+                    alt={user.name || 'User avatar'}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
+                </div>
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 flex-shrink-0">
+                  <User className="h-6 w-6" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-black dark:text-white truncate">
+                  {user?.name || 'User'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
           </div>
           
           {/* Navigation Links - visible on mobile only */}
           <div className="md:hidden border-b border-gray-100 dark:border-gray-800">
+            <Link 
+              href="/dashboard"
+              className="flex items-center px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
+              onClick={() => setIsOpen(false)}
+            >
+              <Home className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+              Home
+            </Link>
             <Link 
               href="/problems"
               className="flex items-center px-4 py-2 text-sm text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"

@@ -127,7 +127,7 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
       
-      // Access token has expired, try to refresh it
+      // Access token has expired, try to refresh it silently
       try {
         const response = await fetch('http://127.0.0.1:8000/auth/refresh', {
           method: 'POST',
@@ -141,7 +141,11 @@ export const authOptions: NextAuthOptions = {
         });
         
         if (!response.ok) {
-          throw new Error('Failed to refresh token');
+          // If refresh fails, keep the existing token but mark it as needing refresh
+          return {
+            ...token,
+            error: "RefreshAccessTokenError"
+          };
         }
         
         const data = await response.json();
@@ -149,24 +153,23 @@ export const authOptions: NextAuthOptions = {
         return {
           ...token,
           accessToken: data.access_token,
-          refreshToken: data.refresh_token || token.refreshToken,
+          refreshToken: token.refreshToken,
           accessTokenExpires: Date.now() + 15 * 60 * 1000,
+          error: undefined // Clear any previous errors
         };
       } catch (error) {
-        console.error('Refresh token failed', error);
-        return { ...token, error: "RefreshAccessTokenError" };
+        // If refresh fails, keep the existing token but mark it as needing refresh
+        return {
+          ...token,
+          error: "RefreshAccessTokenError"
+        };
       }
     },
     async session({ session, token }) {
-      if (token.error === "RefreshAccessTokenError") {
-        // If there was an error refreshing the token, sign out the user
-        session.error = "RefreshAccessTokenError";
-        return session;
-      }
-      
-      session.accessToken = token.accessToken;
-      session.error = token.error;
+      // Only update session if we have a valid token
       if (token) {
+        session.accessToken = token.accessToken;
+        session.error = token.error;
         session.user = {
           ...session.user,
           id: token.id,

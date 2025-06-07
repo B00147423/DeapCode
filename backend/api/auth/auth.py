@@ -132,16 +132,32 @@ def login(response: Response, data: LoginRequest, db: Session = Depends(get_db))
 
 
 @router.post("/refresh")
-def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
+def refresh_access_token(refresh_token: dict, db: Session = Depends(get_db)):
     try:
+        # Get the refresh token from the request body
+        token = refresh_token.get("refresh_token")
+        if not token:
+            raise HTTPException(status_code=400, detail="Refresh token is required")
+
         # Decode and verify the refresh token
-        payload = decode_access_token(refresh_token)
+        payload = decode_access_token(token)
         if not payload:
             raise HTTPException(status_code=401, detail="Invalid refresh token")
 
+        # Get user from database to ensure they still exist
+        user = db.query(User).filter(User.id == payload["sub"]).first()
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+
         # Create new access token using the user id (sub) from the refresh token payload
-        new_access_token = create_access_token({"sub": payload["sub"]})
-        return {"access_token": new_access_token, "token_type": "bearer"}
+        new_access_token = create_access_token({"sub": str(user.id)})
+        new_refresh_token = create_refresh_token({"sub": str(user.id)})
+        
+        return {
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "token_type": "bearer"
+        }
     
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")

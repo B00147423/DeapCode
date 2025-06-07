@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession, signOut } from 'next-auth/react';
 
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +14,34 @@ export default function AuthPage() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const { data: session, status } = useSession();
+
+    // Handle session errors and redirects
+    useEffect(() => {
+        if (status === 'authenticated') {
+            if (session?.error === 'RefreshAccessTokenError') {
+                // If there's a refresh token error, sign out the user
+                signOut({ redirect: false });
+                setError('Your session has expired. Please log in again.');
+            } else {
+                router.push('/dashboard');
+            }
+        }
+    }, [status, session, router]);
+
+    // Don't render the page content if still checking auth status
+    if (status === 'loading') {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <div className="text-center">Loading...</div>
+            </div>
+        );
+    }
+
+    // Don't render the page if authenticated and no errors
+    if (status === 'authenticated' && !session?.error) {
+        return null;
+    }
 
     // Username validation function
     const validateUsername = (value: string) => {
