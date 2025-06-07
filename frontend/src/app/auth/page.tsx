@@ -1,7 +1,7 @@
 // src/app/auth/page.tsx
 "use client";
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession, signOut } from 'next-auth/react';
 
 export default function AuthPage() {
@@ -13,8 +13,15 @@ export default function AuthPage() {
     const [repeatPassword, setRepeatPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const searchParams = useSearchParams();
     const router = useRouter();
     const { data: session, status } = useSession();
+
+    // Set initial mode based on URL parameter
+    useEffect(() => {
+        const mode = searchParams.get('mode');
+        setIsLogin(mode !== 'register');
+    }, [searchParams]);
 
     // Handle session errors and redirects
     useEffect(() => {
@@ -222,6 +229,11 @@ export default function AuthPage() {
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
+                if (isLogin) {
+                  router.replace('/auth?mode=register');
+                } else {
+                  router.replace('/auth?mode=login');
+                }
               }}
               className="text-blue-500 hover:text-blue-700 text-sm disabled:text-gray-400"
               disabled={isLoading}

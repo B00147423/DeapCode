@@ -3,7 +3,8 @@ import { Providers } from '@/providers';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Header from '@/app/components/header';
+import Header from './components/header';
+import ConditionalHeader from './components/ConditionalHeader';
 
 // Preload the Inter font
 const inter = Inter({ 
@@ -40,7 +41,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          <Header />
+          <ConditionalHeader /> 
           <main className="min-h-screen">
             {children}
           </main>
