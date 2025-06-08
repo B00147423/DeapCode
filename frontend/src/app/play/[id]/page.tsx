@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { 
   Code2,    
   Play, 
@@ -19,47 +20,60 @@ import Editor from '../../components/editor/Editor';
 import RunButton from '../../components/editor/RunButton';
 import ConsoleOutput from '../../components/editor/ConsoleOutput';
 import PlayHeader from '../../components/PlayHeader';
+
+type Problem = {
+  id: string;
+  title: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  description: string;
+  tags?: string[];
+  estimatedTimeMinutes?: number;
+  examples: {
+    input: string;
+    output: string;
+    explanation?: string;
+  }[];
+};
   
 export default function PlayRoomPage() {
+  const params = useParams();
+  const problemId = params.id as string;
+  
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [code, setCode] = useState(`class Solution {
 public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        // Write your solution here
-        
-    }
+    // Write your solution here
+    
 };`);
   const [output, setOutput] = useState('');
   const [editorHeight, setEditorHeight] = useState(400);
   const [isRunning, setIsRunning] = useState(false);
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const [loading, setLoading] = useState(true);
   const dragging = useRef(false);
   const minEditorHeight = 200;
   const maxEditorHeight = 600;
 
-  const roomId = 'test-session';
+  const roomId = problemId;
   const participants = ['You', 'Opponent'];
-  
-  const problem = {
-    title: 'Two Sum',
-    difficulty: 'Easy',
-    description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
 
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
-
-You can return the answer in any order.`,
-    examples: [
-      {
-        input: 'nums = [2,7,11,15], target = 9',
-        output: '[0,1]',
-        explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].'
-      },
-      {
-        input: 'nums = [3,2,4], target = 6',
-        output: '[1,2]',
-        explanation: 'Because nums[1] + nums[2] == 6, we return [1, 2].'
-      }
-    ]
-  };
+  // Fetch problem data when component mounts
+  useEffect(() => {
+    if (problemId) {
+      setLoading(true);
+      fetch(`http://localhost:8000/problems/${problemId}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log("Problem data:", data);
+          setProblem(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Error fetching problem:", err);
+          setLoading(false);
+        });
+    }
+  }, [problemId]);
 
   const onMouseDown = () => {
     dragging.current = true;
@@ -95,9 +109,10 @@ You can return the answer in any order.`,
     setOutput('Running code...\n');
     
     setTimeout(() => {
-      setOutput(`Input: nums = [2,7,11,15], target = 9
-Output: [0,1]
-Expected: [0,1]
+      const firstExample = problem?.examples?.[0];
+      setOutput(`Input: ${firstExample?.input || 'No input available'}
+Output: ${firstExample?.output || 'No output available'}
+Expected: ${firstExample?.output || 'No expected output available'}
 
 ✅ Test case 1 passed
 ✅ Test case 2 passed
@@ -125,6 +140,22 @@ Your solution has been accepted!`);
     // TODO: Implement leave room functionality
     console.log('Leaving room...');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+        <div className="text-lg">Loading problem...</div>
+      </div>
+    );
+  }
+
+  if (!problem) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
+        <div className="text-lg text-red-400">Problem not found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
@@ -166,7 +197,7 @@ Your solution has been accepted!`);
             <div>
               <h3 className="font-medium text-gray-300 mb-3">Examples</h3>
               <div className="space-y-4">
-                {problem.examples.map((example, i) => (
+                {problem.examples && problem.examples.length > 0 ? problem.examples.map((example, i) => (
                   <div key={i} className="bg-gray-900 rounded-lg p-3 border border-gray-700">
                     <div className="text-sm">
                       <div className="text-gray-300 font-medium mb-1">Example {i + 1}:</div>
@@ -181,7 +212,9 @@ Your solution has been accepted!`);
                       </div>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-sm text-gray-400">No examples available</div>
+                )}
               </div>
             </div>
           </div>

@@ -20,7 +20,7 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
-          href="/play/test-session" // or any ID
+          href="/problems"
           className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-10 text-sm font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90 cursor-pointer relative z-10"
         >
           <PlayCircle className="mr-2 h-5 w-5" />
