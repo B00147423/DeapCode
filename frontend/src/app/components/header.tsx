@@ -53,7 +53,7 @@ export default function Header() {
               Home
             </Link>
               <Link href="/problems" className="text-sm font-medium transition-colors hover:text-primary">
-                Problems
+                Problems 
               </Link>
               <Link href="/explore" className="text-sm font-medium transition-colors hover:text-primary">
                 Explore

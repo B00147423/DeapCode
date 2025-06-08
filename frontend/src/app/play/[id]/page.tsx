@@ -18,7 +18,8 @@ import {
 import Editor from '../../components/editor/Editor';
 import RunButton from '../../components/editor/RunButton';
 import ConsoleOutput from '../../components/editor/ConsoleOutput';
-
+import PlayHeader from '../../components/PlayHeader';
+  
 export default function PlayRoomPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [code, setCode] = useState(`class Solution {
@@ -120,49 +121,14 @@ Your solution has been accepted!`);
     }, 1500);
   };
 
+  const handleLeave = () => {
+    // TODO: Implement leave room functionality
+    console.log('Leaving room...');
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-6 h-6 text-orange-500" />
-            <span className="font-bold text-xl">CodeQuest</span>
-          </div>
-          <nav className="flex items-center gap-4 text-sm">
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <Home className="w-4 h-4" />
-              Home
-            </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <BookOpen className="w-4 h-4" />
-              Problems
-            </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <Trophy className="w-4 h-4" />
-              Contest
-            </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-              <MessageSquare className="w-4 h-4" />
-              Discuss
-            </button>
-          </nav>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-gray-300">
-            <Clock className="w-4 h-4" />
-            <span>12:34</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-300">
-            <span>Room: <span className="text-orange-400 font-medium">{roomId}</span></span>
-          </div>
-          <button className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm">
-            <LogOut className="w-4 h-4" />
-            Leave
-          </button>
-        </div>
-      </header>
+      <PlayHeader roomId={roomId} onLeave={handleLeave} />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Problem Sidebar */}
