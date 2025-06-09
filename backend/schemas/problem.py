@@ -20,6 +20,7 @@ class ProblemCreate(ProblemBase):
 
 class Problem(ProblemBase):
     id: UUID
+    slug: str
     created_at: datetime
 
     class Config:

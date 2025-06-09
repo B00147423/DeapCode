@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 
 export type Problem = {
     id: string;
+    slug: string;
     title: string;
     difficulty: "Easy" | "Medium" | "Hard";
     description: string;
@@ -33,8 +34,8 @@ export default function ProblemsPage() {
           .catch(err => console.error("Fetch error:", err));
       }, []);
 
-    const handleProblemClick = (problemId: string) => {
-        router.push(`/play/${problemId}`);
+    const handleProblemClick = (problemSlug: string) => {
+        router.push(`/play/${problemSlug}`);
     };
   
     return (
@@ -44,7 +45,7 @@ export default function ProblemsPage() {
         <div 
             key={idx} 
             className="mb-6 border p-4 rounded-md cursor-pointer hover:shadow-lg hover:border-blue-500 transition-all duration-200" 
-            onClick={() => handleProblemClick(problem.id)}
+            onClick={() => handleProblemClick(problem.slug)}
         >
             <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">{problem.title}</h2>
             

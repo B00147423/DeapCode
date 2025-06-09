@@ -37,7 +37,7 @@ type Problem = {
   
 export default function PlayRoomPage() {
   const params = useParams();
-  const problemId = params.id as string;
+  const problemSlug = params.slug as string;
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [code, setCode] = useState(`class Solution {
@@ -54,14 +54,14 @@ public:
   const minEditorHeight = 200;
   const maxEditorHeight = 600;
 
-  const roomId = problemId;
+  const roomId = problemSlug;
   const participants = ['You', 'Opponent'];
 
   // Fetch problem data when component mounts
   useEffect(() => {
-    if (problemId) {
+    if (problemSlug) {
       setLoading(true);
-      fetch(`http://localhost:8000/problems/${problemId}`)
+      fetch(`http://localhost:8000/problems/${problemSlug}`)
         .then(res => res.json())
         .then(data => {
           console.log("Problem data:", data);
@@ -73,7 +73,7 @@ public:
           setLoading(false);
         });
     }
-  }, [problemId]);
+  }, [problemSlug]);
 
   const onMouseDown = () => {
     dragging.current = true;
