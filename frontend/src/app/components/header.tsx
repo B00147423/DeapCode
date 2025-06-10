@@ -3,17 +3,20 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Code2 } from 'lucide-react';
+import { Code2, Users } from 'lucide-react';
 import { Session } from 'next-auth';
 import { cn } from '@/lib/utils';
 import { getStoredUser, setStoredUser, removeStoredUser } from '@/utils/cookies';
 import UserProfileDropdown from './UserProfileDropdown';
+import JoinRoomModal from './JoinRoomModal';
 import { ModeToggle } from './ui/mode-toggle';
 import { Home, Info, Layers } from 'lucide-react';
+
 export default function Header() {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
   const [storedUser, setStoredUserState] = useState<Session['user'] | null>(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -107,6 +110,15 @@ export default function Header() {
             <Link href="/contest" className="text-sm font-medium transition-colors hover:text-primary">
               Contest
             </Link>
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowJoinModal(true)}
+                className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-black dark:text-white hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150"
+              >
+                <Users className="mr-2 h-4 w-4 text-blue-500" />
+                Join Room
+              </button>
+            )}
           </nav>
           <div className="flex items-center space-x-2">
             <ModeToggle />
@@ -137,6 +149,11 @@ export default function Header() {
           </div>
         </div>
       </div>
+      
+      <JoinRoomModal 
+        isOpen={showJoinModal} 
+        onClose={() => setShowJoinModal(false)} 
+      />
     </header>
   );
 }

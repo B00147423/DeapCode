@@ -15,3 +15,21 @@ void RoomManager::removeRoomIfEmpty(const std::string& roomId) {
         rooms.erase(it);
     }
 }
+
+// Global user tracking implementations
+bool RoomManager::isUserInAnyRoom(const std::string& userId) {
+    return userToRoom.find(userId) != userToRoom.end();
+}
+
+std::string RoomManager::getUserCurrentRoom(const std::string& userId) {
+    auto it = userToRoom.find(userId);
+    return (it != userToRoom.end()) ? it->second : "";
+}
+
+void RoomManager::addUserToRoom(const std::string& userId, const std::string& roomId) {
+    userToRoom[userId] = roomId;
+}
+
+void RoomManager::removeUserFromRoom(const std::string& userId) {
+    userToRoom.erase(userId);
+}
