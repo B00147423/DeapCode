@@ -8,7 +8,9 @@ enum class MessageType {
     JOIN,
     LEAVE,
     CODE_EDIT,
-    CHAT
+    CHAT,
+    CODE_EDIT,
+    RUN_CODE,
 };
 
 struct Message {

@@ -3,6 +3,7 @@
 #include "../room/RoomManager.hpp"
 #include "../shared/Types.hpp"
 #include <nlohmann/json.hpp>
+#include "../codeSolutions/codeSolutions.hpp"
 
 extern RoomManager roomManager;  // declared in main.cpp
 
@@ -85,6 +86,23 @@ void handleMessage(uWS::WebSocket<false, true, PerSocketData>* ws, std::string_v
     case MessageType::CODE_EDIT:
         room->broadcast(message, message.userId); // Don't echo back
         break;
+    case MessageType::RUN_CODE: {
+        nlohmann::json codeReq = nlohmann::json::parse(message.content);
+        std::string code = codeReq.value("code", "");
+        std::string languageGroup = codeReq.value("language", "cpp");
+        // Optional: std::string input = codeReq.value("input", "");
+
+        std::string result = codeSolutions(code, languageGroup);
+
+        ws->send(nlohmann::json({
+            {"type", static_cast<int>(MessageType::RUN_CODE)},
+            {"userId", message.userId},
+            {"username", message.username},
+            {"roomId", message.roomId},
+            {"content", result}
+            }).dump(), uWS::OpCode::TEXT);
+        break;
+    }
 
     default:
         std::cerr << "Unknown message type\n";
